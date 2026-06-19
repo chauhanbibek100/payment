@@ -1,124 +1,140 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
     try {
       await register(username, password);
       setMessage("Account created! Redirecting to login...");
       setIsError(false);
 
-      // Redirect to login after successful registration
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error: any) {
-      console.log(error);
       if (error.response?.data) {
-        if (typeof error.response.data === 'object') {
-          // Extract validation errors from backend
-          const msg = Object.values(error.response.data).join(', ');
+        if (typeof error.response.data === "object") {
+          const msg = Object.values(error.response.data).join(", ");
           setMessage(msg || "Validation error.");
         } else {
-          // String error from backend
           setMessage(error.response.data);
         }
       } else {
         setMessage("An error occurred. Try another username.");
       }
       setIsError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "80px auto",
-        padding: 24,
-        border: "1px solid #ddd",
-        borderRadius: 8,
-        fontFamily: "Arial, sans-serif",
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f5f5f5",
       }}
     >
-      <h2 style={{ marginBottom: 20 }}>Create Account</h2>
+      <Card sx={{ width: 400, borderRadius: 3, boxShadow: 3 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 'bold', textAlign: 'center', mb: 3 }}
+          >
+            Create Account
+          </Typography>
 
-      {message && (
-        <p
-          style={{
-            color: isError ? "red" : "green",
-            marginBottom: 12,
-          }}
-        >
-          {message}
-        </p>
-      )}
+          {message && (
+            <Alert severity={isError ? "error" : "success"} sx={{ mb: 2 }}>
+              {message}
+            </Alert>
+          )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 14 }}>
-          <label style={{ display: "block", marginBottom: 4 }}>Username</label>
-          <input
-            value={username}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "8px 10px",
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              fontSize: 14,
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", marginBottom: 4 }}>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "8px 10px",
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              fontSize: 14,
-            }}
-          />
-        </div>
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: 10,
-            background: "#0F6E56",
-            color: "white",
-            border: "none",
-            borderRadius: 4,
-            fontSize: 16,
-            cursor: "pointer",
-          }}
-        >
-          Register
-        </button>
-      </form>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              required
+              value={username}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[a-zA-Z]*$/.test(value)) {
+                  setUsername(value);
+                }
+              }}
+              placeholder="Choose a username"
+              sx={{ mb: 2 }}
+            />
 
-      <p style={{ marginTop: 16, textAlign: "center" }}>
-        Already have an account?{" "}
-        <Link to="/login" style={{ color: "#1E4D8C" }}>
-          Login
-        </Link>
-      </p>
-    </div>
+            <TextField
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a strong password"
+              sx={{ mb: 3 }}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading}
+              sx={{
+                py: 1.5,
+                fontSize: 16,
+                backgroundColor: "#0F6E56",
+                "&:hover": { backgroundColor: "#0b5240" },
+              }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Register"
+              )}
+            </Button>
+          </form>
+
+          <Typography
+            sx={{ textAlign: 'center', mt: 2, fontSize: 14, color: 'text.secondary' }}
+          >
+            Already have an account?{" "}
+            <Link to="/login" style={{ color: "#1E4D8C", fontWeight: 500 }}>
+              Login
+            </Link>
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
