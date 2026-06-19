@@ -1,0 +1,16 @@
+# Java / Spring Boot
+target/
+*.class
+
+# IntelliJ
+.idea/
+
+# React
+payment-frontend/node_modules/
+payment-frontend/dist/
+
+# VS Code
+.vscode/
+
+# Environment files
+.env
