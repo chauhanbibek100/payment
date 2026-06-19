@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await login(username, password);
@@ -39,10 +39,7 @@ export default function LoginPage() {
           <input
             type="text"
             value={username}
-            onChange={(e) => {
-              const val = e.target.value.replace(/[^A-Za-z]/g, "");
-              setUsername(val);
-            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
             placeholder="Enter your username"
             required
             style={{
@@ -60,7 +57,7 @@ export default function LoginPage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             placeholder="Enter your password"
             required
             style={{

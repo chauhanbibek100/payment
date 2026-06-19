@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await register(username, password);
@@ -22,9 +22,20 @@ export default function RegisterPage() {
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      setMessage("Username already taken. Try another.");
+      if (error.response?.data) {
+        if (typeof error.response.data === 'object') {
+          // Extract validation errors from backend
+          const msg = Object.values(error.response.data).join(', ');
+          setMessage(msg || "Validation error.");
+        } else {
+          // String error from backend
+          setMessage(error.response.data);
+        }
+      } else {
+        setMessage("An error occurred. Try another username.");
+      }
       setIsError(true);
     }
   };
@@ -58,10 +69,7 @@ export default function RegisterPage() {
           <label style={{ display: "block", marginBottom: 4 }}>Username</label>
           <input
             value={username}
-            onChange={(e) => {
-              const val = e.target.value.replace(/[^A-Za-z]/g, "");
-              setUsername(val);
-            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
             required
             style={{
               width: "100%",
@@ -77,7 +85,7 @@ export default function RegisterPage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             required
             style={{
               width: "100%",
