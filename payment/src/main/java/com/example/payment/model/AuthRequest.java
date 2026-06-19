@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 public class AuthRequest {
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 30, message = "Username must be between 3 and 30 characters")
-    @Pattern(regexp = "^[A-Za-z]+$", message = "Username can only contain letters")
     private String username;
 
     @NotBlank(message = "Password is required")
